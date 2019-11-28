@@ -9,9 +9,11 @@
 <body>
     <h1>Recent</h1>
     <li>
+    {% if books %}
         {% for book in books %}
         <li><a href="{{ book.path }}">{{ book.path }}</a></li>
         {% endfor %}
+    {% endif %}
     </li>
 </body>
 </html>
