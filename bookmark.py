@@ -50,6 +50,7 @@ def bind(driver):
     print(driver.execute_script(bindjs))
 
 if __name__ == "__main__":
+    lock_page_shifting = False
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
     path = os.path.realpath('./index.html')
@@ -59,8 +60,14 @@ if __name__ == "__main__":
             if(driver.execute_script("return addbookslock")):
                 add_books()
                 driver.execute_script("unlock();")
+                lock_page_shifting = False
         else:
-            open_pdf_on(driver,150)
+            if not lock_page_shifting:
+                open_pdf_on(driver,150)
+                bind(driver)
+                lock_page_shifting = True
+            else:
+                driver.execute_script('''document.getElementById("numPages").innerText.split("/")[0].replace("(",'')''')
         time.sleep(0.5)
 
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
