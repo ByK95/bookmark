@@ -1,23 +1,34 @@
 body{
-    background: #20262e;
+    background: #1b1b1b;
+    font-family: 'Roboto', sans-serif;
 }
 h1 {
-    font-family: 'Roboto', sans-serif;
     font-size: 45px;
     font-weight: 600;
     color: #fbfbfb;
     margin-left: 5vw;
 }
 h2{
-    font-family: 'Roboto', sans-serif;
     font-weight: 300;
     color: #fbfbfb;
     margin-left: 5vw;
 }
 .sm-title{
     margin-top: 100px;
-    font-family: 'Roboto', sans-serif;
     font-weight: 100;
     color: #fbfbfb;
     margin-left: 5vw;
+    margin-bottom: 6px;
+}
+.b-link{
+    margin-left: 8vw;
+    margin-top: 6px;
+}
+.b-link span{
+    margin-left: 12px;
+    color: #cfcfcf;
+}
+a{
+    text-decoration:none;
+    color: #0026ca;
 }

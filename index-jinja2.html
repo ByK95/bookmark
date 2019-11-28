@@ -16,7 +16,7 @@
         <div>
             <h4 class="sm-title">Recent</h4>
             {% for book in books %}
-            <a href="{{ book.path }}">{{ book.path }}</a>
+            <div class="b-link"><a href="{{ book.path }}">{{ book.path }}</a><span>Hello world</span></div>
             {% endfor %}
         </div>
         {% endif %}
