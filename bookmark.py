@@ -19,8 +19,10 @@ def open_pdf_on(driver,path,page=0):
 
 if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
-    with open("./cache.json",'r') as f:
-        cache = json.load(f)
+    cache = None
+    if os.path.isfile('./cache.json'):
+        with open("./cache.json",'r') as f:
+            cache = json.load(f)
     with open("./index.jinja2",'r') as f:
         template = Template(f.read())
     with open("./index.html",'w') as f:
