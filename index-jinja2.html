@@ -10,13 +10,15 @@
 <body>
     <h1>Bookmark</h1>
     <h2>Just where you left off.</h2>
-    <li>
-    {% if books %}
-        {% for book in books %}
-        <li><a href="{{ book.path }}">{{ book.path }}</a></li>
-        {% endfor %}
-    {% endif %}
-    </li>
+        
+        {% if books %}
+        <div>
+            <h4 class="sm-title">Recent</h4>
+            {% for book in books %}
+            <a href="{{ book.path }}">{{ book.path }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
     <link rel="stylesheet" href="./css/page.css">
 </body>
 </html>
