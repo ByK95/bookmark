@@ -35,6 +35,9 @@ def add_books():
     with open("./cache.json",'w') as f:
         f.write(json.dumps(cache))
 
+def clean_book_name(path):
+    return os.path.split(path)[-1]
+
 if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
