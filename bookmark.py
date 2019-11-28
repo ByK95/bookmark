@@ -20,4 +20,6 @@ if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     with open("./cache.json") as f:
         cache = json.load(f)
-    open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
+    path = os.path.realpath('./index.html')
+    driver.get("file:///"+path.replace('\\','/'))
+    # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
