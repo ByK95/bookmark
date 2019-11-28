@@ -1,3 +1,4 @@
-function getFiles(){
-    return document.getElementById('addbooks').files;
-}
+var addbookslock = false;
+document.getElementById('addbooks').addEventListener('click',function(){
+    addbookslock = true;
+})
