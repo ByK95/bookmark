@@ -1,8 +1,23 @@
+body{
+    background: #20262e;
+}
 h1 {
     font-family: 'Roboto', sans-serif;
-    font-size: 40px;
+    font-size: 45px;
+    font-weight: 600;
+    color: #fbfbfb;
+    margin-left: 5vw;
 }
 h2{
     font-family: 'Roboto', sans-serif;
     font-weight: 300;
+    color: #fbfbfb;
+    margin-left: 5vw;
+}
+.sm-title{
+    margin-top: 100px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 100;
+    color: #fbfbfb;
+    margin-left: 5vw;
 }
