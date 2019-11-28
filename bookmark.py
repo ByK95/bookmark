@@ -11,8 +11,7 @@ def safe_find_element_by_class(driver, elem_class):
     except NoSuchElementException:
         return None
 
-def open_pdf_on(driver,path,page=0):
-    driver.get(path)
+def open_pdf_on(driver,page=0):
     while safe_find_element_by_class(driver, 'page') is None:
         time.sleep(0.5)
     driver.execute_script('''document.getElementsByClassName("page")[{}].scrollIntoView();'''.format(page))
@@ -34,20 +33,34 @@ def add_books():
         cache.append({"path":"file:///"+book,"page":0})
     with open("./cache.json",'w') as f:
         f.write(json.dumps(cache))
+    return True
 
 def clean_book_name(path):
     return os.path.split(path)[-1]
 
+def bind(driver):
+    bindjs = """
+        var lock = false;
+        var elems = document.getElementsByClassName('b-link')
+        for (let index = 0; index < elems.length; index++) {
+            elems[index].addEventListener('click',function(){
+                lock=true;
+            })
+        }"""
+    print(driver.execute_script(bindjs))
+
 if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
-    if os.path.isfile('./cache.json'):
-        with open("./cache.json",'r') as f:
-            cache = json.load(f)
-    with open("./index-jinja2.html",'r') as f:
-        template = Template(f.read())
-    with open("./index.html",'w') as f:
-        f.write(template.render(books=cache))
     path = os.path.realpath('./index.html')
     driver.get("file:///"+path.replace('\\','/'))
+    while True:
+        if driver.current_url == 'file:///D:/no-code_no-life/bookmark/index.html':
+            if(driver.execute_script("return addbookslock")):
+                add_books()
+                driver.execute_script("unlock();")
+        else:
+            open_pdf_on(driver,150)
+        time.sleep(0.5)
+
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
