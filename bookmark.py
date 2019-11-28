@@ -17,6 +17,24 @@ def open_pdf_on(driver,path,page=0):
         time.sleep(0.5)
     driver.execute_script('''document.getElementsByClassName("page")[{}].scrollIntoView();'''.format(page))
 
+def add_books():
+    import tkinter as tk
+    from tkinter import filedialog
+
+    root = tk.Tk()
+    root.withdraw()
+
+    root.attributes("-topmost", True)
+    file_path = filedialog.askopenfilenames()
+    print(file_path) #debug
+    files = list(file_path)
+    with open("./cache.json",'r') as f:
+        cache = json.load(f)
+    for book in files:
+        cache.append({"path":"file:///"+book,"page":0})
+    with open("./cache.json",'w') as f:
+        f.write(json.dumps(cache))
+
 if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
