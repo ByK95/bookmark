@@ -36,11 +36,14 @@ a{
     position: absolute;
     right: 40px;
     bottom: 40px;
-    background-color: #8bf6ff;
+    background-color: #fbfbfb;
     padding-left: 10px;
     padding-right: 10px;
     padding-top: 3px;
     border-radius: 42px;
+}
+#addbooks:hover {
+    background-color: #cfcfcf;
 }
 .fa-3 {
     font-size: 5em;
