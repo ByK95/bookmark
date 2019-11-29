@@ -51,6 +51,7 @@ def bind(driver):
 
 if __name__ == "__main__":
     lock_page_shifting = False
+    index_dict = {}
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
     path = os.path.realpath('./index.html')
@@ -68,7 +69,7 @@ if __name__ == "__main__":
                 open_pdf_on(driver,page)
                 lock_page_shifting = True
             else:
-                driver.execute_script('''document.getElementById("numPages").innerText.split("/")[0].replace("(",'')''')
-        time.sleep(0.5)
-
+                index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id("numPages").text.split("/")[0][1:-1]
+        time.sleep(1)
+    print(index_dict)
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
