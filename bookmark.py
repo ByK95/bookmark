@@ -61,10 +61,11 @@ if __name__ == "__main__":
             if(driver.execute_script("return addbookslock")):
                 add_books()
                 driver.execute_script("unlock();")
-                lock_page_shifting = False
+            lock_page_shifting = False
         else:
             if not lock_page_shifting:
-                open_pdf_on(driver,driver.current_url.split("?page=")[1])
+                page = int(driver.current_url.split("?page=")[1])
+                open_pdf_on(driver,page)
                 lock_page_shifting = True
             else:
                 driver.execute_script('''document.getElementById("numPages").innerText.split("/")[0].replace("(",'')''')
