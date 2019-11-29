@@ -54,9 +54,10 @@ if __name__ == "__main__":
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
     path = os.path.realpath('./index.html')
-    driver.get("file:///"+path.replace('\\','/'))
+    index_url = "file:///"+path.replace('\\','/')
+    driver.get(index_url)
     while True:
-        if driver.current_url == 'file:///D:/no-code_no-life/bookmark/index.html':
+        if driver.current_url == index_url:
             if(driver.execute_script("return addbookslock")):
                 add_books()
                 driver.execute_script("unlock();")
