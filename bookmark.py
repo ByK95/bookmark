@@ -83,6 +83,13 @@ if __name__ == "__main__":
             time.sleep(1)
     except WebDriverException:
         #Render html page on shutdown
+        save = getJson()
+        for book in save:
+            try:
+                book['page'] = index_dict[book['path']]
+            except KeyError:
+                pass
+        write2JSON(save)
         subprocess.call(["python", "./render.py"])
         print("Shutting Down")
         exit()
