@@ -3,6 +3,11 @@
 # What is :bookmark: Bookmark
 Bookmark is app that saves your last pages on a `pdf` document. So you can continue reading where you left off.
 
+# Why Bookmark ?
+In order to get rid of phenomenon showed in the picture bellow
+
+![Why bookmark](./tools/readme-pics/why.JPG)
+
 ## Requirements
  * Python 3.4 or higher
  * Firefox Browser
@@ -11,7 +16,7 @@ Bookmark is app that saves your last pages on a `pdf` document. So you can conti
  * Selenium 
  * Jinja2 
 
-To install all of them:
+Install dependencies:
 
     pip install selenium
     pip install jinja2
