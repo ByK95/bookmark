@@ -45,6 +45,7 @@ def add_books():
         cache.append({"path":"file:///"+book,"page":0})
     write2JSON(cache)
     render_html_page()
+    driver.refresh()
     return True
 
 def clean_book_name(path):
