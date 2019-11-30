@@ -4,6 +4,7 @@ import os
 from jinja2 import Template
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException ,WebDriverException
+import subprocess
 
 def safe_find_element_by_class(driver, elem_class):
     try:
@@ -16,6 +17,14 @@ def open_pdf_on(driver,page=0):
         time.sleep(0.5)
     driver.execute_script('''document.getElementsByClassName("page")[{}].scrollIntoView();'''.format(page))
 
+def getJson():
+    with open("./cache.json",'r') as f:
+        return json.load(f)
+
+def write2JSON(obj):
+    with open("./cache.json",'w') as f:
+        f.write(json.dumps(obj))
+
 def add_books():
     import tkinter as tk
     from tkinter import filedialog
@@ -27,12 +36,10 @@ def add_books():
     file_path = filedialog.askopenfilenames()
     print(file_path) #debug
     files = list(file_path)
-    with open("./cache.json",'r') as f:
-        cache = json.load(f)
+    cache = getJson()
     for book in files:
         cache.append({"path":"file:///"+book,"page":0})
-    with open("./cache.json",'w') as f:
-        f.write(json.dumps(cache))
+    write2JSON(cache)
     return True
 
 def clean_book_name(path):
@@ -75,6 +82,8 @@ if __name__ == "__main__":
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id("numPages").text.split("/")[0][1:-1]
             time.sleep(1)
     except WebDriverException:
+        #Render html page on shutdown
+        subprocess.call(["python", "./render.py"])
         print("Shutting Down")
         exit()
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
