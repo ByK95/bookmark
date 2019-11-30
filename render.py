@@ -9,7 +9,7 @@ def clean_book_name(path):
 if os.path.isfile('./cache.json'):
         with open("./cache.json",'r') as f:
             cache = json.load(f)
-with open("./index-jinja2.html",'r') as f:
+with open("./index-jinja2.html",'r',encoding='utf-8') as f:
     template = Template(f.read())
-with open("./index.html",'w') as f:
+with open("./index.html",'w',encoding='utf-8') as f:
     f.write(template.render({"books":cache,"clean":clean_book_name}))
