@@ -21,13 +21,15 @@ def open_pdf_on(driver,page=0):
     driver.find_element_by_id('pageNumber').click()
     driver.find_element_by_id('pageNumber').send_keys(page + Keys.ENTER)
 
-def getJson():
-    with open("./cache.json",'r') as f:
-        return json.load(f)
-
 def write2JSON(obj):
     with open("./cache.json",'w') as f:
         f.write(json.dumps(obj))
+
+
+def getJson():
+    if not os.path.isfile("./cache.json"): write2JSON([])
+    with open("./cache.json",'r') as f:
+        return json.load(f)
 
 def render_html_page():
     subprocess.call(["python", "./render.py"])
