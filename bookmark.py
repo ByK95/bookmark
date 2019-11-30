@@ -3,7 +3,7 @@ import json
 import os
 from jinja2 import Template
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException ,WebDriverException
 
 def safe_find_element_by_class(driver, elem_class):
     try:
@@ -57,19 +57,24 @@ if __name__ == "__main__":
     path = os.path.realpath('./index.html')
     index_url = "file:///"+path.replace('\\','/')
     driver.get(index_url)
-    while True:
-        if driver.current_url == index_url:
-            if(driver.execute_script("return addbookslock")):
-                add_books()
-                driver.execute_script("unlock();")
-            lock_page_shifting = False
-        else:
-            if not lock_page_shifting:
-                page = int(driver.current_url.split("?page=")[1])
-                open_pdf_on(driver,page)
-                lock_page_shifting = True
+    try:
+        while True:
+            if driver.current_url == index_url:
+                if(driver.execute_script("return addbookslock")):
+                    add_books()
+                    driver.execute_script("unlock();")
+                lock_page_shifting = False
             else:
-                index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id("numPages").text.split("/")[0][1:-1]
-        time.sleep(1)
-    print(index_dict)
+                if not lock_page_shifting:
+                    url , page = driver.current_url.split("?page=")
+                    if not url in index_dict:
+                        page = int(page)
+                        open_pdf_on(driver,page)
+                        lock_page_shifting = True
+                else:
+                    index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id("numPages").text.split("/")[0][1:-1]
+            time.sleep(1)
+    except WebDriverException:
+        print("Shutting Down")
+        exit()
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
