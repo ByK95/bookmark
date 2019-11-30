@@ -26,6 +26,9 @@ def write2JSON(obj):
     with open("./cache.json",'w') as f:
         f.write(json.dumps(obj))
 
+def render_html_page():
+    subprocess.call(["python", "./render.py"])
+
 def add_books():
     import tkinter as tk
     from tkinter import filedialog
@@ -41,6 +44,7 @@ def add_books():
     for book in files:
         cache.append({"path":"file:///"+book,"page":0})
     write2JSON(cache)
+    render_html_page()
     return True
 
 def clean_book_name(path):
@@ -84,14 +88,15 @@ if __name__ == "__main__":
             time.sleep(1)
     except WebDriverException:
         #Render html page on shutdown
-        save = getJson()
-        for book in save:
-            try:
-                book['page'] = index_dict[book['path']]
-            except KeyError:
-                pass
-        write2JSON(save)
-        subprocess.call(["python", "./render.py"])
+        if len(index_dict) > 0:
+            save = getJson()
+            for book in save:
+                try:
+                    book['page'] = index_dict[book['path']]
+                except KeyError:
+                    pass
+            write2JSON(save)
+            render_html_page()
         print("Shutting Down")
         exit()
     # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
