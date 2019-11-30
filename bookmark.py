@@ -5,6 +5,7 @@ from jinja2 import Template
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException ,WebDriverException
 import subprocess
+import pathlib
 
 def safe_find_element_by_class(driver, elem_class):
     try:
@@ -42,7 +43,7 @@ def add_books():
     files = list(file_path)
     cache = getJson()
     for book in files:
-        cache.append({"path":"file:///"+book,"page":0})
+        cache.append({"path":pathlib.Path(book).as_uri(),"name":pathlib.PurePath(book).name,"page":0})
     write2JSON(cache)
     render_html_page()
     driver.refresh()
