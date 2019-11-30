@@ -70,6 +70,7 @@ if __name__ == "__main__":
     index_dict = {}
     driver = webdriver.Firefox(executable_path="./geckodriver.exe", options=None)
     cache = None
+    if not os.path.isfile("./index.html"): render_html_page()
     path = os.path.realpath('./index.html')
     index_url = "file:///"+path.replace('\\','/')
     driver.get(index_url)
