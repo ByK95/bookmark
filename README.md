@@ -3,6 +3,8 @@
 # What is :bookmark: Bookmark
 Bookmark is app that saves your last pages on a `pdf` document. So you can continue reading where you left off.
 
+![Bookmark logo](./tools/gifs/view.gif)
+
 # Why Bookmark ?
 In order to get rid of phenomenon showed in the picture bellow
 
@@ -26,3 +28,8 @@ Run:
     git clone https://github.com/ByK95/bookmark
     cd bookmark
     python bookmark.py
+# FAQ
+
+## Adding books 
+
+![Bookmark logo](./tools/gifs/add_book.gif)
