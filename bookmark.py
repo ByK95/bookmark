@@ -40,7 +40,7 @@ def add_books():
 
     root.attributes("-topmost", True)
     file_path = filedialog.askopenfilenames()
-    print(file_path) #debug
+    # print(file_path) #debug
     files = list(file_path)
     cache = getJson()
     for book in files:
