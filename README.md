@@ -33,3 +33,7 @@ Run:
 ## Adding books 
 
 ![Bookmark logo](./tools/gifs/add_book.gif)
+
+# Contributing
+
+Any contribution is welcome.
