@@ -15,6 +15,7 @@ def safe_find_element_by_class(driver, elem_class):
 def open_pdf_on(driver,page=0):
     while safe_find_element_by_class(driver, 'page') is None:
         time.sleep(0.5)
+    if page > 0: page-=1
     driver.execute_script('''document.getElementsByClassName("page")[{}].scrollIntoView();'''.format(page))
 
 def getJson():
