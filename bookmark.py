@@ -65,6 +65,43 @@ def clean_book_name(path):
     return os.path.split(path)[-1]
 
 
+class Config:
+    page_map = {
+        "normal": "spreadNone",
+        "odd": "spreadOdd",
+        "even": "spreadEven",
+    }
+    command = 'document.getElementById("{}").click()'
+
+    def __init__(self, driver, page_map="normal", zoom=0):
+        self._page_layout = page_map
+        self._zoom = zoom
+        self._driver = driver
+
+    def inject(self):
+        self._driver.execute_script(
+            self.command.format(self.page_map[self._page_layout]))
+        for i in range(abs(self._zoom)):
+            if self._zoom > 0:
+                self._driver.execute_script(
+                    self.command.format("zoomIn"))
+            else:
+                self._driver.execute_script(
+                    self.command.format("zoomOut"))
+
+
+class ConfigLoader:
+    def __init__(self, filename, driver):
+        if os.path.isfile("./"+filename):
+            with open("./"+filename, 'r') as f:
+                self.json = json.load(f)
+            dct = self.json[0]
+            self.config = Config(
+                driver, page_map=dct["page_map"], zoom=dct["zoom"])
+        else:
+            self.config = Config(driver)
+
+
 def bind(driver):
     bindjs = """
         var lock = false;
@@ -101,6 +138,8 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
+                        bset = ConfigLoader('book_conf.json', driver)
+                        bset.config.inject()
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
