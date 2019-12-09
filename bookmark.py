@@ -145,12 +145,17 @@ if __name__ == "__main__":
     path = os.path.realpath('./index.html')
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
+    mapper = JsMapper(driver, ['addbookslock', 'config'])
+    bset = None
     try:
         while True:
             if driver.current_url == index_url:
-                if(driver.execute_script("return addbookslock")):
+                mapper.update()
+                if(mapper.get('addbookslock')):
                     add_books()
-                    driver.execute_script("unlock();")
+                    mapper.unlock()
+                if(mapper.get('config')):
+                    bset = ConfigLoader('book_conf.json', driver)
                 lock_page_shifting = False
             else:
                 if not lock_page_shifting:
@@ -158,8 +163,8 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
-                        bset = ConfigLoader('book_conf.json', driver)
-                        bset.config.inject()
+                        if not bset is None:
+                            bset.config.inject()
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
