@@ -114,6 +114,26 @@ def bind(driver):
     print(driver.execute_script(bindjs))
 
 
+class JsMapper:
+    def __init__(self, driver, map_elems):
+        self.driver = driver
+        self.elems = map_elems
+        self._values = {}
+        for item in self.elems:
+            self._values[item] = ''
+
+    def update(self):
+        for item in self.elems:
+            self._values[item] = driver.execute_script(
+                "return {}".format(item))
+
+    def get(self, key):
+        return self._values[key]
+
+    def unlock(self):
+        self.driver.execute_script("unlock();")
+
+
 if __name__ == "__main__":
     lock_page_shifting = False
     index_dict = {}
