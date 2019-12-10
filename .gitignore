@@ -1,3 +1,6 @@
 cache.json
 index.html
 geckodriver.log
+__pycache__
+book_conf.json
+cache-backup.json
