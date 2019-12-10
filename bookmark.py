@@ -151,6 +151,7 @@ if __name__ == "__main__":
     driver.get(index_url)
     mapper = JsMapper(driver, ['addbookslock', 'config'])
     bset = ConfigLoader('book_conf.json', driver)
+    bset.setConfig('normal')
     try:
         while True:
             if driver.current_url == index_url:
