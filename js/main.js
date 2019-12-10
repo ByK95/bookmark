@@ -2,12 +2,12 @@ var addbookslock = false;
 var config = false;
 
 document.getElementById("addbooks").addEventListener("click", function() {
-  addbookslock = true;
+    addbookslock = true;
 });
 
 function unlock() {
-  addbookslock = false;
-  config = false;
+    addbookslock = false;
+    config = false;
 }
 
 function addElement(type, classes, payload, target) {
