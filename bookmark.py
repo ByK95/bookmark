@@ -95,7 +95,11 @@ class ConfigLoader:
         if os.path.isfile("./"+filename):
             with open("./"+filename, 'r') as f:
                 self.json = json.load(f)
-            dct = self.json[0]
+
+    def setConfig(self, name):
+        dct = [cfg for cfg in self.json if cfg["name"] == name]
+        if len(dct) > 0:
+            dct = dct[0]
             self.config = Config(
                 driver, page_map=dct["page_map"], zoom=dct["zoom"])
         else:
@@ -146,7 +150,7 @@ if __name__ == "__main__":
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
     mapper = JsMapper(driver, ['addbookslock', 'config'])
-    bset = None
+    bset = ConfigLoader('book_conf.json', driver)
     try:
         while True:
             if driver.current_url == index_url:
@@ -155,7 +159,7 @@ if __name__ == "__main__":
                     add_books()
                     mapper.unlock()
                 if(mapper.get('config')):
-                    bset = ConfigLoader('book_conf.json', driver)
+                    bset.setConfig(mapper.get('config'))
                 lock_page_shifting = False
             else:
                 if not lock_page_shifting:
@@ -163,8 +167,7 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
-                        if not bset is None:
-                            bset.config.inject()
+                        bset.config.inject()
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
