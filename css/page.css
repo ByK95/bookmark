@@ -1,6 +1,6 @@
-body{
+body {
     background: #1b1b1b;
-    font-family: 'Roboto', sans-serif;
+    font-family: "Roboto", sans-serif;
 }
 h1 {
     font-size: 45px;
@@ -8,31 +8,31 @@ h1 {
     color: #fbfbfb;
     margin-left: 5vw;
 }
-h2{
+h2 {
     font-weight: 300;
     color: #fbfbfb;
     margin-left: 5vw;
 }
-.sm-title{
+.sm-title {
     margin-top: 100px;
     font-weight: 100;
     color: #fbfbfb;
     margin-left: 5vw;
     margin-bottom: 6px;
 }
-.b-link{
+.b-link {
     margin-left: 8vw;
     margin-top: 6px;
 }
-.b-link span{
+.b-link span {
     margin-left: 12px;
     color: #cfcfcf;
 }
-a{
-    text-decoration:none;
+a {
+    text-decoration: none;
     color: #8bf6ff;
 }
-#addbooks{
+#addbooks {
     position: absolute;
     right: 40px;
     bottom: 40px;
@@ -47,4 +47,7 @@ a{
 }
 .fa-3 {
     font-size: 5em;
+}
+.b-config {
+    cursor: pointer;
 }
