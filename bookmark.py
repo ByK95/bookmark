@@ -41,6 +41,10 @@ def render_html_page():
 
 
 def add_books():
+    """
+    Ugly workaround of finding supplied pdf documents real path
+    """
+
     import tkinter as tk
     from tkinter import filedialog
 
@@ -66,6 +70,10 @@ def clean_book_name(path):
 
 
 class Config:
+    """
+    Comfig class represents user preferences for zoom count and page layout
+    """
+
     page_map = {
         "normal": "spreadNone",
         "odd": "spreadOdd",
@@ -91,6 +99,10 @@ class Config:
 
 
 class ConfigLoader:
+    """
+    Wrapper class that loads config json file 
+    """
+
     def __init__(self, filename, driver):
         if os.path.isfile("./"+filename):
             with open("./"+filename, 'r') as f:
@@ -106,19 +118,11 @@ class ConfigLoader:
             self.config = Config(driver)
 
 
-def bind(driver):
-    bindjs = """
-        var lock = false;
-        var elems = document.getElementsByClassName('b-link')
-        for (let index = 0; index < elems.length; index++) {
-            elems[index].addEventListener('click',function(){
-                lock=true;
-            })
-        }"""
-    print(driver.execute_script(bindjs))
-
-
 class JsMapper:
+    """
+    Class that loads global variable values from webpage into python script
+    """
+
     def __init__(self, driver, map_elems):
         self.driver = driver
         self.elems = map_elems
