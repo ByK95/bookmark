@@ -103,9 +103,9 @@ class ConfigLoader:
     Wrapper class that loads config json file 
     """
 
-    def __init__(self, filename, driver):
-        if os.path.isfile("./"+filename):
-            with open("./"+filename, 'r') as f:
+    def __init__(self, path, driver):
+        if os.path.isfile(path):
+            with open(path, 'r') as f:
                 self.json = json.load(f)
 
     def setConfig(self, name):
@@ -142,19 +142,27 @@ class JsMapper:
         self.driver.execute_script("unlock();")
 
 
+def fs(folderpath, filename):
+    """
+    Alias for path combination
+    """
+    return os.path.join(folderpath, filename)
+
+
 if __name__ == "__main__":
     lock_page_shifting = False
     index_dict = {}
+    dr_pth = os.path.split(os.path.realpath(__file__))[0]
     driver = webdriver.Firefox(
-        executable_path="./geckodriver.exe", options=None)
+        executable_path=fs(dr_pth, "geckodriver.exe"), options=None)
     cache = None
-    if not os.path.isfile("./index.html"):
+    path = fs(dr_pth, "index.html")
+    if not os.path.isfile(path):
         render_html_page()
-    path = os.path.realpath('./index.html')
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
     mapper = JsMapper(driver, ['addbookslock', 'config'])
-    bset = ConfigLoader('book_conf.json', driver)
+    bset = ConfigLoader(fs(dr_pth, 'book_conf.json'), driver)
     bset.setConfig('normal')
     try:
         while True:
