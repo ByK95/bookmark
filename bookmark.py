@@ -106,14 +106,29 @@ class ConfigLoader:
     def __init__(self, path, driver):
         if os.path.isfile(path):
             with open(path, 'r') as f:
-                self.json = json.load(f)
+                try:
+                    self.json = json.load(f)
+                except ValueError:
+                    self.create_default_config(path)
+        else:
+            self.create_default_config(path)
+            
+    
+    def create_default_config(self, path):
+        with open(path, 'w') as f:
+            baseconfig = [
+                {"name":"Novel","page_map":"odd","zoom":0},
+                {"name":"Normal","page_map":"normal","zoom":0}
+            ]
+            f.write(json.dumps(baseconfig))
 
     def setConfig(self, name):
-        dct = [cfg for cfg in self.json if cfg["name"] == name]
-        if len(dct) > 0:
-            dct = dct[0]
-            self.config = Config(
-                driver, page_map=dct["page_map"], zoom=dct["zoom"])
+        if hasattr(self,"json"):
+            dct = [cfg for cfg in self.json if cfg["name"] == name]
+            if len(dct) > 0:
+                dct = dct[0]
+                self.config = Config(
+                    driver, page_map=dct["page_map"], zoom=dct["zoom"])
         else:
             self.config = Config(driver)
 
