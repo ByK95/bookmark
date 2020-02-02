@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
+from interfaces import Book,JsonLoaderInterface
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -55,11 +56,14 @@ def add_books():
     file_path = filedialog.askopenfilenames()
     # print(file_path) #debug
     files = list(file_path)
-    cache = getJson()
+    loader = JsonLoaderInterface()
+    loader.path = "./cache.json"
+    loader.load_data()
     for book in files:
-        cache.append({"path": pathlib.Path(book).as_uri(),
-                      "name": pathlib.PurePath(book).name, "page": 0})
-    write2JSON(cache)
+        newBook = Book(path= pathlib.Path(book).as_uri(),
+                        name= pathlib.PurePath(book).name, page= 0)
+        loader.data.append(newBook)
+    loader.save_data(0)
     render_html_page()
     driver.refresh()
     return True
