@@ -1,10 +1,15 @@
 import os
 import json
+from json import JSONEncoder
 
 class Book(object):
     def __init__(self, **kwargs):
         for arg in kwargs.items():
             setattr(self,arg[0],arg[1])
+
+class BookEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__
 
 class BookLoaderInterface(object):
 
@@ -28,4 +33,7 @@ class JsonLoaderInterface(BookLoaderInterface):
                     self.data.append(Book(**item))
         
     def save_data(self,datas):
-        pass
+        if not hasattr(self,"path"):
+            raise ValueError()
+        with open(self.path, 'w') as f:
+            f.write(json.dumps(self.data,cls=BookEncoder))
