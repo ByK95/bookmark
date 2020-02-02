@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book,JsonLoaderInterface
+from interfaces import Book, JsonLoaderInterface
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -25,23 +25,11 @@ def open_pdf_on(driver, page=0):
     driver.find_element_by_id('pageNumber').send_keys(page + Keys.ENTER)
 
 
-def write2JSON(obj):
-    with open("./cache.json", 'w') as f:
-        f.write(json.dumps(obj))
-
-
-def getJson():
-    if not os.path.isfile("./cache.json"):
-        write2JSON([])
-    with open("./cache.json", 'r') as f:
-        return json.load(f)
-
-
 def render_html_page():
     subprocess.call(["python", "./render.py"])
 
 
-def add_books():
+def add_books(loader):
     """
     Ugly workaround of finding supplied pdf documents real path
     """
@@ -56,21 +44,14 @@ def add_books():
     file_path = filedialog.askopenfilenames()
     # print(file_path) #debug
     files = list(file_path)
-    loader = JsonLoaderInterface()
-    loader.path = "./cache.json"
-    loader.load_data()
     for book in files:
-        newBook = Book(path= pathlib.Path(book).as_uri(),
-                        name= pathlib.PurePath(book).name, page= 0)
+        newBook = Book(path=pathlib.Path(book).as_uri(),
+                       name=pathlib.PurePath(book).name, page=0)
         loader.data.append(newBook)
     loader.save_data(0)
     render_html_page()
     driver.refresh()
     return True
-
-
-def clean_book_name(path):
-    return os.path.split(path)[-1]
 
 
 class Config:
@@ -116,18 +97,17 @@ class ConfigLoader:
                     self.create_default_config(path)
         else:
             self.create_default_config(path)
-            
-    
+
     def create_default_config(self, path):
         with open(path, 'w') as f:
             baseconfig = [
-                {"name":"Novel","page_map":"odd","zoom":0},
-                {"name":"Normal","page_map":"normal","zoom":0}
+                {"name": "Novel", "page_map": "odd", "zoom": 0},
+                {"name": "Normal", "page_map": "normal", "zoom": 0}
             ]
             f.write(json.dumps(baseconfig))
 
     def setConfig(self, name):
-        if hasattr(self,"json"):
+        if hasattr(self, "json"):
             dct = [cfg for cfg in self.json if cfg["name"] == name]
             if len(dct) > 0:
                 dct = dct[0]
@@ -180,6 +160,9 @@ if __name__ == "__main__":
         render_html_page()
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
+    loader = JsonLoaderInterface()
+    loader.path = "./cache.json"
+    loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])
     bset = ConfigLoader(fs(dr_pth, 'book_conf.json'), driver)
     bset.setConfig('normal')
@@ -188,7 +171,7 @@ if __name__ == "__main__":
             if driver.current_url == index_url:
                 mapper.update()
                 if(mapper.get('addbookslock')):
-                    add_books()
+                    add_books(loader)
                     mapper.unlock()
                 if(mapper.get('config')):
                     bset.setConfig(mapper.get('config'))
@@ -207,13 +190,12 @@ if __name__ == "__main__":
     except WebDriverException:
         # Render html page on shutdown
         if len(index_dict) > 0:
-            save = getJson()
-            for book in save:
-                try:
-                    book['page'] = index_dict[book['path']]
-                except KeyError:
-                    pass
-            write2JSON(save)
+            print(index_dict)
+            changed_books = [
+                x for x in loader.data if x.path in index_dict.keys()]
+            for chg in changed_books:
+                chg.page = index_dict[chg.path]
+            loader.save_data(0)
             render_html_page()
         print("Shutting Down")
         exit()
