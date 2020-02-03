@@ -165,7 +165,6 @@ if __name__ == "__main__":
     loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])
     bset = ConfigLoader(fs(dr_pth, 'book_conf.json'), driver)
-    bset.setConfig('normal')
     try:
         while True:
             if driver.current_url == index_url:
@@ -182,7 +181,8 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
-                        bset.config.inject()
+                        if mapper.get('config'):
+                            bset.config.inject()
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
