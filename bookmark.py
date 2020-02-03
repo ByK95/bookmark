@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, JsonLoaderInterface
+from interfaces import Book, JsonBookLoader
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         render_html_page()
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
-    loader = JsonLoaderInterface()
+    loader = JsonBookLoader()
     loader.path = "./cache.json"
     loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])

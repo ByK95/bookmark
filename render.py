@@ -1,7 +1,7 @@
 from jinja2 import Template
 import os
 import json
-from interfaces import Book,JsonLoaderInterface
+from interfaces import Book, JsonBookLoader
 cache = None
 configs = None
 
@@ -11,7 +11,7 @@ def clean_book_name(path):
 
 
 if os.path.isfile('./cache.json'):
-    loader = JsonLoaderInterface()
+    loader = JsonBookLoader()
     loader.path = "./cache.json"
     loader.load_data()
     with open("./book_conf.json", 'r') as f:
