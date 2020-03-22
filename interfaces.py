@@ -31,10 +31,9 @@ class DbBookLoader(BookLoaderInterface):
         db = datab.connect()
         res = db.execute(
             'SELECT name,path,page FROM current INNER JOIN books ON books.id = current.book_id INNER JOIN history ON history.id = current.history_id;').fetchall()
-        books = []
+        self.data = []
         for book in res:
-            books.append(Book(name=book[0], path=book[1], page=book[2]))
-        return books
+            self.data.append(Book(name=book[0], path=book[1], page=book[2]))
 
     def save_data(self, data):
         pass
