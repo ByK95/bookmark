@@ -1,0 +1,5 @@
+CREATE TRIGGER on_book_add
+    AFTER INSERT ON books
+BEGIN
+    INSERT INTO current(book_id) VALUES(new.id);
+END;

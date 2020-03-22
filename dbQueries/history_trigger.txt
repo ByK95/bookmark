@@ -1,0 +1,9 @@
+CREATE TRIGGER on_read 
+    AFTER INSERT ON history
+BEGIN
+    UPDATE OR IGNORE current SET history_id = new.id WHERE book_id = new.book_id
+    INSERT INTO current (book_id,history_id) VALUES (new.book_id,history_id);
+    
+END;
+UPDATE OR IGNORE current SET history_id = 2 WHERE book_id = 2;
+INSERT INTO current (book_id,history_id) VALUES (1,1);
