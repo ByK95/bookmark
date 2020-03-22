@@ -1,0 +1,1 @@
+DELETE FROM current WHERE book_id = (SELECT id FROM books WHERE name = '?');
