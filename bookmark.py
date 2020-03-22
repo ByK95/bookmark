@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, JsonLoaderInterface
+from interfaces import Book, DbBookLoader
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -160,8 +160,7 @@ if __name__ == "__main__":
         render_html_page()
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
-    loader = JsonLoaderInterface()
-    loader.path = "./cache.json"
+    loader = DbBookLoader()
     loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])
     bset = ConfigLoader(fs(dr_pth, 'book_conf.json'), driver)
@@ -193,6 +192,7 @@ if __name__ == "__main__":
             print(index_dict)
             changed_books = [
                 x for x in loader.data if x.path in index_dict.keys()]
+            print(changed_books)
             for chg in changed_books:
                 chg.page = index_dict[chg.path]
             loader.save_data(0)
