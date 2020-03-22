@@ -143,12 +143,7 @@ if __name__ == "__main__":
         # Render html page on shutdown
         if len(index_dict) > 0:
             print(index_dict)
-            changed_books = [
-                x for x in loader.data if x.path in index_dict.keys()]
-            print(changed_books)
-            for chg in changed_books:
-                chg.page = index_dict[chg.path]
-            loader.save_data(0)
+            loader.save_data(index_dict)
             render_html_page()
         print("Shutting Down")
         exit()
