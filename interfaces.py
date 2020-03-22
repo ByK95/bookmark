@@ -9,12 +9,16 @@ class Book(object):
             setattr(self, arg[0], arg[1])
 
 
-class BookEncoder(JSONEncoder):
+class Preference(Book):
+    pass
+
+
+class ObjEncoder(JSONEncoder):
     def default(self, o):
         return o.__dict__
 
 
-class BookLoaderInterface(object):
+class LoaderInterfacee(object):
 
     def load_data(self):
         pass
@@ -23,7 +27,7 @@ class BookLoaderInterface(object):
         pass
 
 
-class DbBookLoader(BookLoaderInterface):
+class DbBookLoader(LoaderInterfacee):
 
     def load_data(self):
         from db import db
@@ -39,7 +43,9 @@ class DbBookLoader(BookLoaderInterface):
         pass
 
 
-class JsonLoaderInterface(BookLoaderInterface):
+class JsonLoaderInterface(LoaderInterfacee):
+    encoder = ObjEncoder
+    obj = None
 
     def load_data(self):
         self.data = []
@@ -49,10 +55,18 @@ class JsonLoaderInterface(BookLoaderInterface):
             with open(self.path, 'r') as f:
                 cache = json.load(f)
                 for item in cache:
-                    self.data.append(Book(**item))
+                    self.data.append(self.obj(**item))
 
     def save_data(self, datas):
         if not hasattr(self, "path"):
             raise ValueError()
         with open(self.path, 'w') as f:
-            f.write(json.dumps(self.data, cls=BookEncoder))
+            f.write(json.dumps(self.data, cls=self.encoder))
+
+
+class JsonBookLoader(JsonLoaderInterface):
+    obj = Book
+
+
+class JsonPrefLoader(JsonLoaderInterface):
+    obj = Preference

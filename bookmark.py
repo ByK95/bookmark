@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, DbBookLoader
+from interfaces import Book, DbBookLoader, JsonPrefLoader
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -54,67 +54,17 @@ def add_books(loader):
     return True
 
 
-class Config:
-    """
-    Comfig class represents user preferences for zoom count and page layout
-    """
-
-    page_map = {
-        "normal": "spreadNone",
-        "odd": "spreadOdd",
-        "even": "spreadEven",
-    }
+def inject(driver, pref):
     command = 'document.getElementById("{}").click()'
-
-    def __init__(self, driver, page_map="normal", zoom=0):
-        self._page_layout = page_map
-        self._zoom = zoom
-        self._driver = driver
-
-    def inject(self):
-        self._driver.execute_script(
-            self.command.format(self.page_map[self._page_layout]))
-        for i in range(abs(self._zoom)):
-            if self._zoom > 0:
-                self._driver.execute_script(
-                    self.command.format("zoomIn"))
-            else:
-                self._driver.execute_script(
-                    self.command.format("zoomOut"))
-
-
-class ConfigLoader:
-    """
-    Wrapper class that loads config json file 
-    """
-
-    def __init__(self, path, driver):
-        if os.path.isfile(path):
-            with open(path, 'r') as f:
-                try:
-                    self.json = json.load(f)
-                except ValueError:
-                    self.create_default_config(path)
+    driver.execute_script(
+        command.format(pref.page_map))
+    for i in range(abs(pref.zoom)):
+        if pref.zoom > 0:
+            driver.execute_script(
+                command.format("zoomIn"))
         else:
-            self.create_default_config(path)
-
-    def create_default_config(self, path):
-        with open(path, 'w') as f:
-            baseconfig = [
-                {"name": "Novel", "page_map": "odd", "zoom": 0},
-                {"name": "Normal", "page_map": "normal", "zoom": 0}
-            ]
-            f.write(json.dumps(baseconfig))
-
-    def setConfig(self, name):
-        if hasattr(self, "json"):
-            dct = [cfg for cfg in self.json if cfg["name"] == name]
-            if len(dct) > 0:
-                dct = dct[0]
-                self.config = Config(
-                    driver, page_map=dct["page_map"], zoom=dct["zoom"])
-        else:
-            self.config = Config(driver)
+            driver.execute_script(
+                command.format("zoomOut"))
 
 
 class JsMapper:
@@ -163,8 +113,9 @@ if __name__ == "__main__":
     loader = DbBookLoader()
     loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])
-    bset = ConfigLoader(fs(dr_pth, 'book_conf.json'), driver)
-    bset.setConfig('normal')
+    prefs = JsonPrefLoader()
+    prefs.path = "./book_conf.json"
+    prefs.load_data()
     try:
         while True:
             if driver.current_url == index_url:
@@ -173,7 +124,8 @@ if __name__ == "__main__":
                     add_books(loader)
                     mapper.unlock()
                 if(mapper.get('config')):
-                    bset.setConfig(mapper.get('config'))
+                    prefs.config = [
+                        x for x in prefs.data if x.name == mapper.get('config')]
                 lock_page_shifting = False
             else:
                 if not lock_page_shifting:
@@ -181,7 +133,8 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
-                        bset.config.inject()
+                        if mapper.get('config'):
+                            inject(driver, prefs.config.pop())
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
