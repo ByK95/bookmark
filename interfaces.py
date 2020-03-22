@@ -40,7 +40,14 @@ class DbBookLoader(LoaderInterfacee):
             self.data.append(Book(name=book[0], path=book[1], page=book[2]))
 
     def save_data(self, data):
-        pass
+        from db import db
+        datab = db()
+        db = datab.connect()
+        for change in data:
+            res = db.execute(
+                f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{change}'),{data[change]});")
+        db.commit()
+        db.close()
 
 
 class JsonLoaderInterface(LoaderInterfacee):
