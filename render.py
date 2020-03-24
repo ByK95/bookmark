@@ -10,7 +10,7 @@ def clean_book_name(path):
     return os.path.split(path)[-1]
 
 
-if os.path.isfile('./cache.json'):
+if os.path.isfile('./knowledge.db'):
     loader = DbBookLoader()
     loader.load_data()
     with open("./book_conf.json", 'r') as f:
