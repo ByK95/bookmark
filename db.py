@@ -50,11 +50,17 @@ class QuerySequencer(Database):
 
 if __name__ == "__main__":
     db = Database(
-        '''CREATE TABLE IF NOT EXISTS books (ind INTEGER PRIMARY KEY ASC, name TEXT, page INTEGET,path TEXT)''')
+        '''CREATE TABLE books (id INTEGER PRIMARY KEY ASC,name TEXT,path TEXT,'time' TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+        CREATE TABLE history (id INTEGER PRIMARY KEY ASC,book_id INTEGER,page TEXT,'time' TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
+        CREATE TRIGGER on_read 
+        AFTER INSERT ON history
+        BEGIN
+            UPDATE current SET history_id = new.id WHERE book_id = new.book_id;
+        END;
+        CREATE TABLE current (book_id INTEGER NOT NULL , history_id);
+        CREATE TRIGGER on_book_add
+            AFTER INSERT ON books
+        BEGIN
+            INSERT INTO current(book_id) VALUES(new.id);
+        END;''')
     db.execute()
-    add = QuerySequencer('INSERT INTO books VALUES (?,?,?,?)')
-    books = [(None, 'test', 12, 'reelpath'), (None, 'test2', 123, 'reelpath2'),
-             (None, 'test3', 124, 'reelpath3'), (None, 'test4', 125, 'reelpath4')]
-    add.execute(books)
-    adb = ListAll('''SELECT * FROM books ''')
-    print(adb.execute())
