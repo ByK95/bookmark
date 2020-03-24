@@ -45,7 +45,7 @@ class DbBookLoader(LoaderInterfacee):
         db = datab.connect()
         for change in data:
             res = db.execute(
-                f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{change}'),{data[change]});")
+                f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{}'),{});".format(change, data[change]))
         db.commit()
         db.close()
 
