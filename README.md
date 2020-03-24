@@ -24,8 +24,7 @@ In order to get rid of phenomenon showed in the picture below
 
 Install dependencies:
 
-    pip install selenium
-    pip install jinja2
+    pip install requirements.txt
 
 Run:
 
