@@ -30,12 +30,14 @@
             {% endfor %}
         </div>
         {% endif %}
-        <h4 class="sm-title">Page Layout Preferences</h4>
-        {% for config in configs %}
-        <div class="b-link">
-            <a class="b-config">{{config.name}}</a>
-        </div>
-        {% endfor %}
+        {% if books %}
+            <h4 class="sm-title">Page Layout Preferences</h4>
+            {% for config in configs %}
+            <div class="b-link">
+                <a class="b-config">{{config.name}}</a>
+            </div>
+            {% endfor %}
+        {% endif %}
         <div id="addbooks">
             <i class="fa fa-plus fa-3" id="plus"></i>
         </div>
