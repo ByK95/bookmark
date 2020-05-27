@@ -47,8 +47,7 @@ def add_books(loader):
     for book in files:
         newBook = Book(path=pathlib.Path(book).as_uri(),
                        name=pathlib.PurePath(book).name, page=0)
-        loader.data.append(newBook)
-    loader.save_data(0)
+        loader.append_book(newBook)
     render_html_page()
     driver.refresh()
     return True

@@ -49,6 +49,17 @@ class DbBookLoader(LoaderInterfacee):
         db.commit()
         db.close()
 
+    def append_book(self,book):
+        self.data.append(book)
+        from db import db
+        datab = db()
+        db = datab.connect()
+        res = db.execute(
+                "INSERT INTO books (name,path) VALUES('{}','{}');".format(book.name,book.path))
+        db.execute("INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{}'),{});".format(book.path, 0))
+        db.commit()
+        db.close()
+
 
 class JsonLoaderInterface(LoaderInterfacee):
     encoder = ObjEncoder
