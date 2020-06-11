@@ -22,14 +22,18 @@ In order to get rid of phenomenon showed in the picture below
 -   Selenium
 -   Jinja2
 
-Install dependencies:
+Development:
+    #Create virtual env
+    virtualenv devenv
 
-    pip install requirements.txt
+    #install dependencies
+    python install -r requirements.txt
 
 Run:
 
     git clone https://github.com/ByK95/bookmark
     cd bookmark
+    pip install -r requirements.txt
     python bookmark.py
 
 # FAQ
