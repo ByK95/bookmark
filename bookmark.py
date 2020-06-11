@@ -44,10 +44,12 @@ def add_books(loader):
     file_path = filedialog.askopenfilenames()
     # print(file_path) #debug
     files = list(file_path)
+    books = []
     for book in files:
         newBook = Book(path=pathlib.Path(book).as_uri(),
                        name=pathlib.PurePath(book).name, page=0)
-        loader.append_book(newBook)
+        books.append(newBook)
+    loader.insert_book_db(books)
     render_html_page()
     driver.refresh()
     return True
