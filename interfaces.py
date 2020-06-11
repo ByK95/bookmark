@@ -57,6 +57,16 @@ class DbBookLoader(LoaderInterfacee):
         conn.commit()
         conn.close()
 
+class DbPrefLoader(LoaderInterfacee):
+
+    def load_data(self):
+        conn = datab.connect()
+        res = conn.execute(
+            'SELECT name, style, zoom FROM preferences').fetchall()
+        self.data = []
+        for book in res:
+            self.data.append(Book(name=book[0], path=book[1], page=book[2]))
+
 
 class JsonLoaderInterface(LoaderInterfacee):
     encoder = ObjEncoder
