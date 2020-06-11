@@ -1,7 +1,8 @@
 import os
 import json
 from json import JSONEncoder
-
+from db import db
+datab = db()
 
 class Book(object):
     def __init__(self, **kwargs):
@@ -30,35 +31,31 @@ class LoaderInterfacee(object):
 class DbBookLoader(LoaderInterfacee):
 
     def load_data(self):
-        from db import db
-        datab = db()
-        db = datab.connect()
-        res = db.execute(
+        conn = datab.connect()
+        res = conn.execute(
             'SELECT name,path,page FROM current INNER JOIN books ON books.id = current.book_id INNER JOIN history ON history.id = current.history_id;').fetchall()
         self.data = []
         for book in res:
             self.data.append(Book(name=book[0], path=book[1], page=book[2]))
 
     def save_data(self, data):
-        from db import db
-        datab = db()
-        db = datab.connect()
+        conn = datab.connect()
         for change in data:
-            res = db.execute(
-                "INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{}'),{});".format(change, data[change]))
-        db.commit()
-        db.close()
+            res = conn.execute(
+                f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{change}'),{data[change]});")
+        conn.commit()
+        conn.close()
 
-    def append_book(self,book):
-        self.data.append(book)
-        from db import db
-        datab = db()
-        db = datab.connect()
-        res = db.execute(
-                "INSERT INTO books (name,path) VALUES('{}','{}');".format(book.name,book.path))
-        db.execute("INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{}'),{});".format(book.path, 0))
-        db.commit()
-        db.close()
+    def insert_book_db(self, books):
+        conn = datab.connect()
+        for book in books:
+            res = conn.execute(
+                f"INSERT INTO books(name,path) VALUES ('{book.name}','{book.path}');")
+            conn.execute(
+                f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE name = '{book.name}'),0);")
+            self.data.append(book)
+        conn.commit()
+        conn.close()
 
 
 class JsonLoaderInterface(LoaderInterfacee):
