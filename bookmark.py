@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, DbBookLoader, JsonPrefLoader
+from interfaces import Book, DbBookLoader, JsonPrefLoader , load_prefs , insert_pref_db
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -58,7 +58,7 @@ def add_books(loader):
 def inject(driver, pref):
     command = 'document.getElementById("{}").click()'
     driver.execute_script(
-        command.format(pref.page_map))
+        command.format(pref.style))
     for i in range(abs(pref.zoom)):
         if pref.zoom > 0:
             driver.execute_script(
@@ -114,9 +114,7 @@ if __name__ == "__main__":
     loader = DbBookLoader()
     loader.load_data()
     mapper = JsMapper(driver, ['addbookslock', 'config'])
-    prefs = JsonPrefLoader()
-    prefs.path = "./book_conf.json"
-    prefs.load_data()
+    prefs = load_prefs()
     try:
         while True:
             if driver.current_url == index_url:
@@ -125,8 +123,8 @@ if __name__ == "__main__":
                     add_books(loader)
                     mapper.unlock()
                 if(mapper.get('config')):
-                    prefs.config = [
-                        x for x in prefs.data if x.name == mapper.get('config')]
+                    pref = [
+                        x for x in prefs if x.name == mapper.get('config')][0]
                 lock_page_shifting = False
             else:
                 if not lock_page_shifting:
@@ -135,7 +133,7 @@ if __name__ == "__main__":
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
                         if mapper.get('config'):
-                            inject(driver, prefs.config.pop())
+                            inject(driver, pref)
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
@@ -143,7 +141,6 @@ if __name__ == "__main__":
     except WebDriverException:
         # Render html page on shutdown
         if len(index_dict) > 0:
-            print(index_dict)
             loader.save_data(index_dict)
             render_html_page()
         print("Shutting Down")

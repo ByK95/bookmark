@@ -1,7 +1,7 @@
 from jinja2 import Template
 import os
 import json
-from interfaces import Book, JsonBookLoader, DbBookLoader
+from interfaces import Book, JsonBookLoader, DbBookLoader , load_prefs
 cache = None
 configs = None
 
@@ -19,7 +19,7 @@ def load_if_exists(filename):
 if __name__ == "__main__":
     loader = DbBookLoader()
     loader.load_data()
-    configs = load_if_exists("./book_conf.json")
+    configs = load_prefs()
     with open("./index-jinja2.html", 'r', encoding='utf-8') as f:
         template = Template(f.read())
     with open("./index.html", 'w', encoding='utf-8') as f:
