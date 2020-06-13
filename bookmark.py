@@ -99,7 +99,7 @@ class JsTrigger(JsCmdMapper):
     def __init__(self, driver):
         super().__init__(driver)
         self.maps = {
-            "finished" : mark_finished,
+            "finished" : self.mark_finished_wrapper,
             "addbook" : self.add_book_wrapper,
             "config" : self.setConfig,
             }
@@ -111,6 +111,10 @@ class JsTrigger(JsCmdMapper):
 
     def add_book_wrapper(self):
         add_books(self.driver)
+
+    def mark_finished_wrapper(self,name):
+        mark_finished(name)
+        render_html_page()
 
 def fs(folderpath, filename):
     """
