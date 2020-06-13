@@ -1,13 +1,19 @@
-var addbookslock = false;
-var config = false;
+var mapperCmd = [];
 
-document.getElementById("addbooks").addEventListener("click", function() {
-    addbookslock = true;
+document.getElementById("addbooks").addEventListener("click", function () {
+    pushCommand("addbook", null);
 });
 
-function unlock() {
-    addbookslock = false;
-    config = false;
+function cleanMapper() {
+    mapperCmd = [];
+}
+
+function pushCommand(command, args) {
+    if (args == null) {
+        mapperCmd.push(command.concat("/"));
+        return;
+    }
+    mapperCmd.push(command.concat("/" + args));
 }
 
 function addElement(type, classes, payload, target) {
@@ -31,8 +37,8 @@ function remElement() {
 
 for (let index = 0; index < a.length; index++) {
     const element = a[index];
-    element.addEventListener("click", function(el) {
-        config = el.target.innerText;
+    element.addEventListener("click", function (el) {
+        pushCommand("config", el.target.innerText);
         remElement();
         if (el.target.children.length == 0) {
             addElement("i", ["fa", "fa-check"], "", el.target);
