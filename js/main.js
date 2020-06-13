@@ -1,7 +1,19 @@
 var mapperCmd = [];
+var archiveLock = false;
 
 document.getElementById("addbooks").addEventListener("click", function () {
     pushCommand("addbook", null);
+});
+
+var archiveButton = document.getElementById("archive");
+archiveButton.addEventListener("click", function () {
+    if (!archiveLock) {
+        archiveLock = true;
+        archiveButton.style.backgroundColor = "#ffb300";
+        return;
+    }
+    archiveLock = false;
+    archiveButton.style.backgroundColor = "#fbfbfb";
 });
 
 function cleanMapper() {
@@ -43,5 +55,20 @@ for (let index = 0; index < a.length; index++) {
         if (el.target.children.length == 0) {
             addElement("i", ["fa", "fa-check"], "", el.target);
         }
+    });
+}
+
+var docs = document.getElementsByTagName("A");
+for (let index = 0; index < docs.length; index++) {
+    const element = docs[index];
+    element.addEventListener("click", function (el) {
+        if (archiveLock && !el.target.classList.contains("b-config")) {
+            pushCommand("finished", el.target.innerText);
+            el.target.href = "";
+            el.target.parentElement.remove();
+            event.preventDefault();
+        }
+        archiveLock = false;
+        archiveButton.style.backgroundColor = "#fbfbfb";
     });
 }
