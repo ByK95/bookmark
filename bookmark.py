@@ -8,7 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, DbBookLoader, JsonPrefLoader , load_prefs , insert_pref_db
+from interfaces import Book, DbBookLoader, JsonPrefLoader , load_prefs , insert_pref_db , mark_finished
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -67,30 +67,50 @@ def inject(driver, pref):
             driver.execute_script(
                 command.format("zoomOut"))
 
-
-class JsMapper:
+class JsCmdMapper:
     """
     Class that loads global variable values from webpage into python script
     """
 
-    def __init__(self, driver, map_elems):
+    def __init__(self, driver):
         self.driver = driver
-        self.elems = map_elems
-        self._values = {}
-        for item in self.elems:
-            self._values[item] = ''
 
     def update(self):
-        for item in self.elems:
-            self._values[item] = driver.execute_script(
-                "return {}".format(item))
-
-    def get(self, key):
-        return self._values[key]
+        queue = driver.execute_script("return mapperCmd;")
+        if len(queue) > 0:
+            self.unlock()
+            self.process(queue)
 
     def unlock(self):
-        self.driver.execute_script("unlock();")
+        self.driver.execute_script("cleanMapper();")
 
+    def process(self,queue):
+        for command in queue:
+            func , args = command.split("/")
+            try:
+                if args == None or args == '':
+                    self.maps[func]()
+                else:
+                    self.maps[func](args)
+            except KeyError and AttributeError:
+                pass
+
+class JsTrigger(JsCmdMapper):
+    def __init__(self, driver):
+        super().__init__(driver)
+        self.maps = {
+            "finished" : mark_finished,
+            "addbook" : self.add_book_wrapper,
+            "config" : self.setConfig,
+            }
+    
+    def setConfig(self,name):
+        prefs = load_prefs()
+        setattr(self,"preference",[
+                        x for x in prefs if x.name == name][0])
+
+    def add_book_wrapper(self):
+        add_books(self.driver)
 
 def fs(folderpath, filename):
     """
@@ -113,18 +133,11 @@ if __name__ == "__main__":
     driver.get(index_url)
     loader = DbBookLoader()
     loader.load_data()
-    mapper = JsMapper(driver, ['addbookslock', 'config'])
-    prefs = load_prefs()
+    actionMap = JsTrigger(driver)
     try:
         while True:
             if driver.current_url == index_url:
-                mapper.update()
-                if(mapper.get('addbookslock')):
-                    add_books(loader)
-                    mapper.unlock()
-                if(mapper.get('config')):
-                    pref = [
-                        x for x in prefs if x.name == mapper.get('config')][0]
+                actionMap.update()
                 lock_page_shifting = False
             else:
                 if not lock_page_shifting:
@@ -132,8 +145,8 @@ if __name__ == "__main__":
                     if not url in index_dict:
                         open_pdf_on(driver, page)
                         lock_page_shifting = True
-                        if mapper.get('config'):
-                            inject(driver, pref)
+                        if hasattr(actionMap,"preference"):
+                            inject(driver, actionMap.preference)
                 else:
                     index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
                         "pageNumber").get_attribute("value")
