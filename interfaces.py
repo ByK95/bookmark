@@ -74,6 +74,13 @@ def insert_pref_db(pref):
     conn.commit()
     conn.close()
 
+def mark_finished(book_name):
+    conn = datab.connect()
+    conn.execute(
+            f"DELETE FROM current WHERE book_id = (SELECT id FROM books WHERE name = '{book_name}');")
+    conn.commit()
+    conn.close()
+
 class JsonLoaderInterface(LoaderInterfacee):
     encoder = ObjEncoder
     obj = None
