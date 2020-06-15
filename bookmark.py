@@ -76,13 +76,13 @@ class JsCmdMapper:
         self.driver = driver
 
     def update(self):
-        queue = driver.execute_script("return mapperCmd;")
+        queue = self.driver.execute_script("return mapperCmd;")
         if len(queue) > 0:
             self.unlock()
             self.process(queue)
 
     def unlock(self):
-        self.driver.execute_script("cleanMapper();")
+        return self.driver.execute_script("cleanMapper();")
 
     def process(self,queue):
         for command in queue:
@@ -110,7 +110,7 @@ class JsTrigger(JsCmdMapper):
                         x for x in prefs if x.name == name][0])
 
     def add_book_wrapper(self):
-        add_books(self.driver)
+        add_books(self.loader)
 
     def mark_finished_wrapper(self,name):
         mark_finished(name)
@@ -138,6 +138,7 @@ if __name__ == "__main__":
     loader = DbBookLoader()
     loader.load_data()
     actionMap = JsTrigger(driver)
+    actionMap.loader = loader
     try:
         while True:
             if driver.current_url == index_url:
