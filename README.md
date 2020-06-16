@@ -36,11 +36,22 @@ Run:
     pip install -r requirements.txt
     python bookmark.py
 
+
 # FAQ
 
 ## Adding books
 
 ![Bookmark logo](./tools/gifs/add_book.gif)
+
+# Development
+    Install required tools:
+        pip install coverage
+
+    Runing tests:
+        python -m unittest discover
+
+    Coverage:
+        coverage run -m unittest discover
 
 # Contributing
 
