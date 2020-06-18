@@ -1,7 +1,9 @@
 import sqlite3
 import os.path
 from functools import wraps 
+from interfaces import Book, Preference
 
+datab = None
 db_init = {
     "create_books":
         "CREATE TABLE IF NOT EXISTS books (id INTEGER PRIMARY KEY ASC,name TEXT,path TEXT,'time' TIMESTAMP DEFAULT CURRENT_TIMESTAMP);",
@@ -42,6 +44,8 @@ class db(object):
     def connect(self):
         return sqlite3.connect(self.db_name)
 
+datab = db()
+
 """
 Wraps database query aroud database connections , returns cached result
 1->st arg of decorated function should be db connection
@@ -58,6 +62,49 @@ def db_decorator(dbinstance):
             return cache
         return wrapper 
     return f_dec
+
+@db_decorator(datab)
+def save_data(conn, data):
+    for change in data:
+        res = conn.execute(
+            f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE path = '{change}'),{data[change]});")
+
+@db_decorator(datab)
+def insert_book_db(conn, books):
+    for book in books:
+        res = conn.execute(
+            f"INSERT INTO books(name,path) VALUES ('{book.name}','{book.path}');")
+        conn.execute(
+            f"INSERT INTO history (book_id,page) VALUES((SELECT id FROM books WHERE name = '{book.name}'),0);")
+
+@db_decorator(datab)
+def load_books(conn):
+    res = conn.execute(
+        'SELECT name,path,page FROM current INNER JOIN books ON books.id = current.book_id INNER JOIN history ON history.id = current.history_id;').fetchall()
+    data = []
+    for book in res:
+        data.append(Book(name=book[0], path=book[1], page=book[2]))
+    return data
+
+@db_decorator(datab)
+def load_prefs(conn):
+    res = conn.execute(
+        'SELECT name, style, zoom FROM preferences').fetchall()
+    data = []
+    for ref in res:
+        data.append(Preference(name = ref[0], style = ref[1], zoom = ref[2]))
+    return data
+
+@db_decorator(datab)
+def insert_pref_db(conn,pref):
+    conn.execute(
+            f"INSERT INTO preferences (name, style, zoom) VALUES('{pref.name}','{pref.style}','{pref.zoom}');")
+
+@db_decorator(datab)
+def mark_finished(conn,book_name):
+    conn.execute(
+            f"DELETE FROM current WHERE book_id = (SELECT id FROM books WHERE name = '{book_name}');")
+
 
 if __name__ == "__main__":
     datab = db()
