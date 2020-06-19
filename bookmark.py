@@ -8,7 +8,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 import subprocess
 import pathlib
-from interfaces import Book, DbBookLoader, JsonPrefLoader , load_prefs , insert_pref_db , mark_finished
+from interfaces import Book, JsonPrefLoader
+from db import save_data, insert_book_db, load_books, load_prefs, insert_pref_db, mark_finished
 
 
 def safe_find_element_by_class(driver, elem_class):
@@ -26,14 +27,12 @@ def open_pdf_on(driver, page=0):
 
 
 def render_html_page():
-    subprocess.call(["python", "./render.py"])
+    return subprocess.call(["python", "./render.py"])
 
-
-def add_books(loader):
-    """
-    Ugly workaround of finding supplied pdf documents real path
-    """
-
+"""
+    Open firedialog and ask for filepaths
+"""
+def ask_file_paths():
     import tkinter as tk
     from tkinter import filedialog
 
@@ -42,14 +41,12 @@ def add_books(loader):
 
     root.attributes("-topmost", True)
     file_path = filedialog.askopenfilenames()
-    # print(file_path) #debug
-    files = list(file_path)
-    books = []
-    for book in files:
-        newBook = Book(path=pathlib.Path(book).as_uri(),
-                       name=pathlib.PurePath(book).name, page=0)
-        books.append(newBook)
-    loader.insert_book_db(books)
+    return list(file_path)
+
+def add_books(files):
+    books = [Book(path=pathlib.Path(book).as_uri(),
+                       name=pathlib.PurePath(book).name, page=0) for book in files]
+    insert_book_db(books)
     render_html_page()
     driver.refresh()
     return True
@@ -110,7 +107,7 @@ class JsTrigger(JsCmdMapper):
                         x for x in prefs if x.name == name][0])
 
     def add_book_wrapper(self):
-        add_books(self.loader)
+        add_books(ask_file_paths())
 
     def mark_finished_wrapper(self,name):
         mark_finished(name)
@@ -135,10 +132,7 @@ if __name__ == "__main__":
         render_html_page()
     index_url = "file:///"+path.replace('\\', '/')
     driver.get(index_url)
-    loader = DbBookLoader()
-    loader.load_data()
     actionMap = JsTrigger(driver)
-    actionMap.loader = loader
     try:
         while True:
             if driver.current_url == index_url:
@@ -159,7 +153,8 @@ if __name__ == "__main__":
     except WebDriverException:
         # Render html page on shutdown
         if len(index_dict) > 0:
-            loader.save_data(index_dict)
+            print(index_dict)
+            save_data(index_dict)
             render_html_page()
         print("Shutting Down")
         exit()
