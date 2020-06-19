@@ -7,6 +7,8 @@ class Book(object):
         for arg in kwargs.items():
             setattr(self, arg[0], arg[1])
 
+    def __eq__(self, value):
+        return self.__dict__ == value.__dict__
 
 class Preference(Book):
     pass
