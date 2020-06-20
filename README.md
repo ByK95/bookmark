@@ -1,3 +1,5 @@
+![Alt text](./tools/coverage.svg)
+
 ![Bookmark logo](./tools/logo/logo.jpg)
 
 # What is :bookmark: Bookmark
@@ -52,6 +54,7 @@ Run:
 
     Coverage:
         coverage run -m unittest discover
+        coverage-badge -o ./tools/coverage.svg
 
 # Contributing
 
