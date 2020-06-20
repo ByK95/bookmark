@@ -10,20 +10,7 @@ import subprocess
 import pathlib
 from interfaces import Book, JsonPrefLoader
 from db import save_data, insert_book_db, load_books, load_prefs, insert_pref_db, mark_finished
-
-
-def safe_find_element_by_class(driver, elem_class):
-    try:
-        return driver.find_element_by_class_name(elem_class)
-    except NoSuchElementException:
-        return None
-
-
-def open_pdf_on(driver, page=0):
-    while safe_find_element_by_class(driver, 'page') is None:
-        time.sleep(0.5)
-    driver.find_element_by_id('pageNumber').click()
-    driver.find_element_by_id('pageNumber').send_keys(page + Keys.ENTER)
+from werkzeug.utils import cached_property
 
 
 def render_html_page():
@@ -50,19 +37,6 @@ def add_books(files):
     render_html_page()
     driver.refresh()
     return True
-
-
-def inject(driver, pref):
-    command = 'document.getElementById("{}").click()'
-    driver.execute_script(
-        command.format(pref.style))
-    for i in range(abs(pref.zoom)):
-        if pref.zoom > 0:
-            driver.execute_script(
-                command.format("zoomIn"))
-        else:
-            driver.execute_script(
-                command.format("zoomOut"))
 
 class JsCmdMapper:
     """
@@ -119,43 +93,75 @@ def fs(folderpath, filename):
     """
     return os.path.join(folderpath, filename)
 
+class BookmarkApp:
+    def __init__(self):
+        self.index_dict = {}
+        self.lock_page_shifting = False
+        self.cache = None
+        self.dr_pth = os.path.split(os.path.realpath(__file__))[0]
+    
+    @cached_property
+    def landing_url(self):
+        return "file:///" + fs(self.dr_pth, "index.html").replace('\\', '/')
+
+    def inject(self, pref):
+        command = 'document.getElementById("{}").click()'
+        self.driver.execute_script(
+            command.format(pref.style))
+        for i in range(abs(pref.zoom)):
+            if pref.zoom > 0:
+                self.driver.execute_script(
+                    command.format("zoomIn"))
+            else:
+                self.driver.execute_script(
+                    command.format("zoomOut"))
+
+    def safe_find_element_by_class(self, elem_class):
+        try:
+            return self.driver.find_element_by_class_name(elem_class)
+        except NoSuchElementException:
+            return None
+
+    def open_pdf_on(self, page=0):
+        while self.safe_find_element_by_class('page') is None:
+            time.sleep(0.5)
+        self.driver.find_element_by_id('pageNumber').click()
+        self.driver.find_element_by_id('pageNumber').send_keys(page + Keys.ENTER)
+
+    def start(self):
+        self.driver = webdriver.Firefox(
+        executable_path=fs(self.dr_pth, "geckodriver.exe"), options=None)
+        self.actionMap = JsTrigger(self.driver)
+        self.driver.get(self.landing_url)
+        self.loop()
+
+    def loop(self):
+        try:
+            while True:
+                if self.driver.current_url == self.landing_url:
+                    self.actionMap.update()
+                    self.lock_page_shifting = False
+                else:
+                    if not self.lock_page_shifting:
+                        url, page = self.driver.current_url.split("?page=")
+                        if not url in self.index_dict:
+                            self.open_pdf_on(page)
+                            self.lock_page_shifting = True
+                            if hasattr(self.actionMap,"preference"):
+                                self.inject(self.actionMap.preference)
+                    else:
+                        self.index_dict[self.driver.current_url.split("?page=")[0]] = self.driver.find_element_by_id(
+                            "pageNumber").get_attribute("value")
+                time.sleep(1)
+        except WebDriverException:
+            # Render html page on shutdown
+            if len(self.index_dict) > 0:
+                print(self.index_dict)
+                save_data(self.index_dict)
+                render_html_page()
+            print("Shutting Down")
+            exit()
 
 if __name__ == "__main__":
-    lock_page_shifting = False
-    index_dict = {}
-    dr_pth = os.path.split(os.path.realpath(__file__))[0]
-    driver = webdriver.Firefox(
-        executable_path=fs(dr_pth, "geckodriver.exe"), options=None)
-    cache = None
-    path = fs(dr_pth, "index.html")
-    if not os.path.isfile(path):
-        render_html_page()
-    index_url = "file:///"+path.replace('\\', '/')
-    driver.get(index_url)
-    actionMap = JsTrigger(driver)
-    try:
-        while True:
-            if driver.current_url == index_url:
-                actionMap.update()
-                lock_page_shifting = False
-            else:
-                if not lock_page_shifting:
-                    url, page = driver.current_url.split("?page=")
-                    if not url in index_dict:
-                        open_pdf_on(driver, page)
-                        lock_page_shifting = True
-                        if hasattr(actionMap,"preference"):
-                            inject(driver, actionMap.preference)
-                else:
-                    index_dict[driver.current_url.split("?page=")[0]] = driver.find_element_by_id(
-                        "pageNumber").get_attribute("value")
-            time.sleep(1)
-    except WebDriverException:
-        # Render html page on shutdown
-        if len(index_dict) > 0:
-            print(index_dict)
-            save_data(index_dict)
-            render_html_page()
-        print("Shutting Down")
-        exit()
-    # open_pdf_on(driver,cache[0]['path'],cache[0]['page'])
+    app = BookmarkApp()
+    app.start()

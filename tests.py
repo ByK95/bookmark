@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import MagicMock , Mock , call
 from unittest.mock import create_autospec
-from bookmark import JsCmdMapper , fs , render_html_page
+from bookmark import JsCmdMapper , fs , render_html_page , BookmarkApp
+from interfaces import Preference
 
 class TestJsCmdMapper(unittest.TestCase):
 
@@ -60,6 +61,38 @@ class TestApp(unittest.TestCase):
 
     def test_render(self):
         self.assertEqual(render_html_page(),0)
+
+    def test_inject_neg_zoom(self):
+        app = BookmarkApp()
+        app.driver = Mock()
+        app.driver.execute_script = Mock()
+
+        pref = Preference(name="test", style="None", zoom = -2)
+        app.inject(pref)
+        callstack = [
+            call('document.getElementById("None").click()'),
+            call('document.getElementById("zoomOut").click()'),
+            call('document.getElementById("zoomOut").click()')
+                        ]
+        self.assertEqual(app.driver.execute_script.call_args_list, callstack)
+
+    def test_inject_pos_zoom(self):
+        app = BookmarkApp()
+        app.driver = Mock()
+        app.driver.execute_script = Mock()
+        pref = Preference(name="test", style="None", zoom = 2)
+        app.inject(pref)
+        callstack = [
+            call('document.getElementById("None").click()'),
+            call('document.getElementById("zoomIn").click()'),
+            call('document.getElementById("zoomIn").click()')
+                        ]
+        self.assertEqual(app.driver.execute_script.call_args_list, callstack)
+
+    def test_landing_url(self):
+        app = BookmarkApp()
+        self.assertEqual(app.landing_url, "file:///D:/no-code_no-life/bookmark/index.html")
+
 
 
 if __name__ == '__main__':
