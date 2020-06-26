@@ -35,7 +35,6 @@ def add_books(files):
                        name=pathlib.PurePath(book).name, page=0) for book in files]
     insert_book_db(books)
     render_html_page()
-    driver.refresh()
     return True
 
 class JsCmdMapper:
@@ -82,6 +81,7 @@ class JsTrigger(JsCmdMapper):
 
     def add_book_wrapper(self):
         add_books(ask_file_paths())
+        self.driver.refresh()
 
     def mark_finished_wrapper(self,name):
         mark_finished(name)
