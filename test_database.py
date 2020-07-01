@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import MagicMock , Mock , call
 from unittest.mock import create_autospec
-from db import db, datab, db_decorator, save_data, insert_book_db, load_books, load_prefs, insert_pref_db, mark_finished
+from db import db, datab, db_decorator, save_data, insert_book_db, load_books, load_prefs, insert_pref_db, mark_finished, insert_pin, load_pins
 from interfaces import Book, Preference
 datab = Mock()
 
@@ -58,6 +58,17 @@ class TestDB(unittest.TestCase):
         mark_finished(book.name)
         books = load_books()
         self.assertEqual(book in books, False, "Should not be in list")
+
+    def test_z_insert_pin(self):
+        bookname = 'books1'
+        page = 44
+        text = 'hello world example'
+        insert_pin(bookname, page, text)
+    
+    def test_zz_pins(self):
+        bookname = 'books1'
+        pins = load_pins(bookname)
+        self.assertEqual(len(pins) > 0, True, "Should be more than 0")
 
     def clean_up(self, filename):
         if os.path.exists(filename):
