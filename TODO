@@ -1,1 +1,3 @@
-- [ ] Check if cache.json exists
+- [ ] Inject javascript into pdf page
+- [ ] Inject button to dom
+- [ ] Read states with sync
