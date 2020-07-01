@@ -152,8 +152,15 @@ class BookmarkApp:
                     else:
                         self.index_dict[self.driver.current_url.split("?page=")[0]] = self.driver.find_element_by_id(
                             "pageNumber").get_attribute("value")
+                        self.driver.execute_script("""
+                            var btn = document.createElement("BUTTON");
+                            btn.innerHTML = "📌";
+                            btn.classList.add("toolbarButton");
+                            document.getElementById("toolbarViewerRight").appendChild(btn); 
+                        """)
                 time.sleep(1)
-        except WebDriverException:
+        except WebDriverException as e:
+            print(e)
             # Render html page on shutdown
             if len(self.index_dict) > 0:
                 print(self.index_dict)
